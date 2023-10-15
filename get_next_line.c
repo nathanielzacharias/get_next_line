@@ -65,18 +65,41 @@ char	*return_line(size_t count, int fd, char *str)
 	return (str);
 }
 
+char 	*add_to_buffer(char *buf, int fd)
+{
+	char 	*ptr;
+	int		i;
+
+	i = 0;
+	while (buf[i] != '\0')
+		i++;
+	if (i < BUFFER_SIZE)
+		read(fd, &buf[i], (BUFFER_SIZE - i));
+	buf[BUFFER_SIZE] = '\0';
+	return (buf);
+}
+
 char	*get_next_line(int fd)
 {
-	char	*str;
-	size_t	count;
-	int		check;
+	char			*str;
+	size_t			count;
+	int				check;
+	static char 	*buf;
 
 	count = 0;
-	count += find_newline_char(fd);
-	printf("%li\n", count);
-	str = return_line(count, fd, str);
+	// count += find_newline_char(fd);
+	// printf("%li\n", count);
+	// str = return_line(count, fd, str);
 	// if (!str)
-	// 	return (NULL); 
+	// 	return (NULL);
+	if (!buf)
+	{
+		buf = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
+		if (!buf)
+			return (NULL);
+	}
+	buf = add_to_buffer(buf, fd);
+
 	return (str);
 }
 
@@ -91,14 +114,4 @@ int	main(void)
 	// printf("%s\n", get_next_line(fd));
 	// printf("%s\n", get_next_line(fd));
 	// printf("%s\n", get_next_line(fd));
-	// printf("%s\n", get_next_line(fd));
-	// printf("%s\n", get_next_line(fd));
-	// printf("%s\n", get_next_line(fd));
-	// printf("%s\n", get_next_line(fd));
-	// printf("%s\n", get_next_line(fd));
-	// printf("%s\n", get_next_line(fd));
-	// printf("%s\n", get_next_line(fd));
-	// printf("%s\n", get_next_line(fd));
-	// printf("%s\n", get_next_line(fd));
-
-}
+} 
