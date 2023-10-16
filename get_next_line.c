@@ -13,25 +13,19 @@
 #include <stdio.h>
 #include "get_next_line.h"
 
-char 	*read_to_buffer(char *buf, int fd)
-{
-	int		i;
-
-	i = 0;
-	while (buf[i] != '\0')
-		i++;
-	if (i < BUFFER_SIZE)
-		read(fd, &buf[i], (BUFFER_SIZE - i));
-	buf[BUFFER_SIZE] = '\0';
-	// printf("buf in add_to_buffer is:%s\n", buf);
-	return (buf);
-}
-
 char 	*make_new_buf(char *buf)
 {
 	buf = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!buf)
 		return (NULL);
+	// int i;
+	// i = 0;
+	// while(i < BUFFER_SIZE)
+	// {
+	// 	buf[i] = '0';
+	// 	i++;
+	// }
+	// buf[BUFFER_SIZE] = '\0';
 	return (buf);
 }
 
@@ -52,7 +46,8 @@ void	shift_buf_left(int i, char *buf)
 	int	j;
 
 	j = 0;
-	i++;
+	// if (buf[i] == '\n')
+	// 	i++;
 	while (buf[i] != '\0')
 	{
 		buf[j] = buf[i];
@@ -70,13 +65,20 @@ char	*extracted_line(char *buf, int newline_pos)
 	str = (char *)malloc((newline_pos + 1) * sizeof(char));
 	if (!str)
 		return (NULL);
+	int j;
+	j = 0;
+	while (j < newline_pos)
+	{
+		str[j] = '0';
+		j++;
+	}
+	str[newline_pos] = '\0';
 	i = 0;
 	while (i < newline_pos)
 	{
 		str[i] = buf[i];
 		i++;
 	}
-	str[newline_pos] = '\0';
 	shift_buf_left(newline_pos, buf);
 	return (str);
 }
@@ -93,6 +95,15 @@ char	*add_more_fd_to_buffer(char *buf, int fd)
 	new_buf = (char *)malloc((buf_len + BUFFER_SIZE + 1) * sizeof(char));
 	if (!new_buf)
 		return (NULL);
+	int j;
+	j = 0;
+	while (j < buf_len + BUFFER_SIZE)
+	{
+		new_buf[j] = '0';
+		j++;
+	}
+	new_buf[buf_len + BUFFER_SIZE] = '\0';		 
+
 	//copy_buf, read_to_buf, add 0
 	int i;
 	i = 0;
@@ -102,7 +113,6 @@ char	*add_more_fd_to_buffer(char *buf, int fd)
 		i++;
 	}
 	read(fd, &new_buf[i], BUFFER_SIZE);
-	new_buf[i + BUFFER_SIZE + 1] = '\0';		 
 	//free buf
 	free(buf);
 	//assign new pointer to old buf pointer
@@ -114,7 +124,7 @@ char	*get_next_line(int fd)
 {
 	static char 	*buf;
 	int				newline_pos;
-	int				eof_pos;
+	// int				eof_pos;
 
 	if (!buf)
 		buf = make_new_buf(buf);
@@ -124,26 +134,27 @@ char	*get_next_line(int fd)
 	//return extracted line
 	//else add more fd to buffer
 	newline_pos = 0;
-	eof_pos = 0;
-	buf = read_to_buffer(buf, fd);
-	printf("before make_new_buf\n");
-	// printf("%s\n", buf );
+	// eof_pos = 0;
+	buf = add_more_fd_to_buffer(buf, fd);
+	// printf("content of buf is:\n%s\n", buf );
 	// while (!eof_pos)
 	// {
 		// while (!newline_pos)
 		// {
 			newline_pos = buf_has_chr(buf, '\n');
-			printf("%d\n", newline_pos );
-			// if(newline_pos)
-			// {
-			// 	// newline_pos = 0;
-			// 	return (extracted_line(buf, newline_pos));
-			// }
-			// else
-			// {
-			// 	newline_pos = 0;
-			// 	buf = add_more_fd_to_buffer(buf, fd);
-			// }
+			// printf("newline_pos:%d\n", newline_pos);
+			// printf("%s\n", buf );
+			if(newline_pos)
+			{
+				// newline_pos = 0;
+				return (extracted_line(buf, newline_pos));
+			}
+			else
+			{
+				// newline_pos = 0;
+				// printf("buffer has:%s\n", buf );
+				buf = add_more_fd_to_buffer(buf, fd);
+			}
 		// }
 	// 	eof_pos = buf_has_chr(buf, '\0');
 	// }
@@ -159,15 +170,37 @@ int	main(void)
 	// fd = open("empty_file.txt", O_RDONLY);
 	// get_next_line(fd);
 
-
 	printf("get_next_line is:%s\n", get_next_line(fd));
-	// printf("get_next_line is:%s\n", get_next_line(fd));
-	// printf("get_next_line is:%s\n", get_next_line(fd));
-	// printf("get_next_line is:%s\n", get_next_line(fd));
-	// printf("get_next_line is:%s\n", get_next_line(fd));
-	// printf("get_next_line is:%s\n", get_next_line(fd));
-	// printf("get_next_line is:%s\n", get_next_line(fd));
-	// printf("get_next_line is:%s\n", get_next_line(fd));
-	// printf("get_next_line is:%s\n", get_next_line(fd));
-	// printf("get_next_line is:%s\n", get_next_line(fd));
-} 
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+	printf("get_next_line is:%s\n", get_next_line(fd));
+}
