@@ -46,8 +46,8 @@ void	shift_buf_left(int i, char *buf)
 	int	j;
 
 	j = 0;
-	// if (buf[i] == '\n')
-	// 	i++;
+	if (buf[i] == '\n')
+		i++;
 	while (buf[i] != '\0')
 	{
 		buf[j] = buf[i];
@@ -128,37 +128,34 @@ char	*get_next_line(int fd)
 
 	if (!buf)
 		buf = make_new_buf(buf);
-	//if existing buf has \n
-	//return extracted line
-	//else if existing buf has \0
-	//return extracted line
-	//else add more fd to buffer
+
 	newline_pos = 0;
-	// eof_pos = 0;
-	buf = add_more_fd_to_buffer(buf, fd);
-	// printf("content of buf is:\n%s\n", buf );
-	// while (!eof_pos)
+	
+	// while (!newline_pos)
 	// {
-		// while (!newline_pos)
-		// {
-			newline_pos = buf_has_chr(buf, '\n');
-			// printf("newline_pos:%d\n", newline_pos);
-			// printf("%s\n", buf );
-			if(newline_pos)
-			{
-				// newline_pos = 0;
-				return (extracted_line(buf, newline_pos));
-			}
-			else
-			{
-				// newline_pos = 0;
-				// printf("buffer has:%s\n", buf );
+		newline_pos = buf_has_chr(buf, '\n');
+		if (newline_pos)
+		{
+			return (extracted_line(buf, newline_pos));
+			// else if (eof_pos)
+			// 	return extracted_line(buf, eof_pos);
+		}
+		else if (!newline_pos)
+		{
+			// buf = add_more_fd_to_buffer(buf, fd);
+			// newline_pos = buf_has_chr(buf, '\n');
+			// while (!newline_pos)
+			// {
 				buf = add_more_fd_to_buffer(buf, fd);
-			}
-		// }
-	// 	eof_pos = buf_has_chr(buf, '\0');
+				newline_pos = buf_has_chr(buf, '\n');
+			// }
+			// if (newline_pos)
+				return (extracted_line(buf, newline_pos));
+			// else if (!newline_pos)
+			// 	buf = add_more_fd_to_buffer(buf, fd);
+		}
+		return extracted_line(buf, newline_pos);
 	// }
-	return (extracted_line(buf, newline_pos));
 }
 
 #include <fcntl.h>
@@ -199,8 +196,8 @@ int	main(void)
 	printf("get_next_line is:%s\n", get_next_line(fd));
 	printf("get_next_line is:%s\n", get_next_line(fd));
 	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
 }
