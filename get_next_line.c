@@ -48,7 +48,7 @@ void	shift_buf_left(int i, char *buf)
 	j = 0;
 	if (buf[i] == '\n')
 		i++;
-	while (buf[i] != '\0')
+ 	while (buf[i] != '\0')
 	{
 		buf[j] = buf[i];
 		j++;
@@ -117,6 +117,7 @@ char	*add_more_fd_to_buffer(char *buf, int fd)
 	free(buf);
 	//assign new pointer to old buf pointer
 	buf = new_buf;
+	printf("buf is:%s\n", buf);
 	return (buf); //return new_buf
 }
 
@@ -128,33 +129,45 @@ char	*get_next_line(int fd)
 
 	if (!buf)
 		buf = make_new_buf(buf);
-
 	newline_pos = 0;
-	
+	if (buf)
+	{
+		// read_until_newline_chr
+		while (!newline_pos)
+		{
+			newline_pos = buf_has_chr(buf, '\n');
+			printf("newline_pos is:%d\n", newline_pos);
+			buf = add_more_fd_to_buffer(buf, fd); 
+		}
+	}
+	return (extracted_line(buf, newline_pos));
+
+	// newline_pos = 0;
+
 	// while (!newline_pos)
 	// {
-		newline_pos = buf_has_chr(buf, '\n');
-		if (newline_pos)
-		{
-			return (extracted_line(buf, newline_pos));
-			// else if (eof_pos)
-			// 	return extracted_line(buf, eof_pos);
-		}
-		else if (!newline_pos)
-		{
-			// buf = add_more_fd_to_buffer(buf, fd);
-			// newline_pos = buf_has_chr(buf, '\n');
-			// while (!newline_pos)
-			// {
-				buf = add_more_fd_to_buffer(buf, fd);
-				newline_pos = buf_has_chr(buf, '\n');
-			// }
-			// if (newline_pos)
-				return (extracted_line(buf, newline_pos));
-			// else if (!newline_pos)
-			// 	buf = add_more_fd_to_buffer(buf, fd);
-		}
-		return extracted_line(buf, newline_pos);
+	// 	newline_pos = buf_has_chr(buf, '\n');
+	// 	if (newline_pos)
+	// 	{
+	// 		return (extracted_line(buf, newline_pos));
+	// 		// else if (eof_pos)
+	// 		// 	return extracted_line(buf, eof_pos);
+	// 	}
+	// 	else if (!newline_pos)
+	// 	{
+	// 		// buf = add_more_fd_to_buffer(buf, fd);
+	// 		// newline_pos = buf_has_chr(buf, '\n');
+	// 		// while (!newline_pos)
+	// 		// {
+	// 		buf = add_more_fd_to_buffer(buf, fd);
+	// 		newline_pos = buf_has_chr(buf, '\n');
+	// 		// }
+	// 		if (newline_pos)
+	// 			return (extracted_line(buf, newline_pos));
+	// 		// else if (!newline_pos)
+	// 		// 	buf = add_more_fd_to_buffer(buf, fd);
+	// 	}
+	// 	return extracted_line(buf, newline_pos);
 	// }
 }
 
@@ -167,35 +180,35 @@ int	main(void)
 	// fd = open("empty_file.txt", O_RDONLY);
 	// get_next_line(fd);
 
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
-	printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
+	// printf("get_next_line is:%s\n", get_next_line(fd));
 	// printf("get_next_line is:%s\n", get_next_line(fd));
 	// printf("get_next_line is:%s\n", get_next_line(fd));
 	// printf("get_next_line is:%s\n", get_next_line(fd));
