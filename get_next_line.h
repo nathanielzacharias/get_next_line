@@ -20,7 +20,7 @@
 
 
 #ifndef BUFFER_SIZE
-# define BUFFER_SIZE 8
+# define BUFFER_SIZE 40
 #endif //BUFFER_SIZE
 
 char	*get_next_line(int fd);
