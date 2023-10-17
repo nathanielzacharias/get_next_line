@@ -24,5 +24,6 @@
 #endif //BUFFER_SIZE
 
 char	*get_next_line(int fd);
+int ft_strlen(char *buf);
 
 #endif //GET_NEXT_LINE_H

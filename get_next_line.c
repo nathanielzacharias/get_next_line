@@ -85,45 +85,46 @@ char	*extracted_line(char *buf, int newline_pos)
 
 int add_more_fd_to_buffer(char *buf, int fd)
 {
-	//buf_len();
 	int	buf_len;
-	buf_len = 0;
-	while (buf[buf_len])
-		buf_len++;
-	//malloc (buf_len + BUFFER_SIZE + 1) * sizeof(char);
+	buf_len = ft_strlen(buf);
+
 	char *new_buf;
 	new_buf = (char *)malloc((buf_len + BUFFER_SIZE + 1) * sizeof(char));
 	if (!new_buf)
 		return (0);
-	int j;
-	j = 0;
-	while (j < buf_len + BUFFER_SIZE)
-	{
-		new_buf[j] = '0';
-		j++;
-	}
 	new_buf[buf_len + BUFFER_SIZE] = '\0';		 
+	ft_bzero(new_buf);
 
-	//copy_buf, read_to_buf, add 0
-	int i;
-	i = 0;
-	while(i < buf_len)
-	{
-		new_buf[i] = buf[i];
-		i++;
-	}
+	// int j;
+	// j = 0;
+	// while (j < buf_len + BUFFER_SIZE)
+	// {
+	// 	new_buf[j] = '0';
+	// 	j++;
+	// }
+
+	// //copy_buf, read_to_buf, add 0
+	// int i;
+	// i = 0;
+	// while(i < buf_len)
+	// {
+	// 	new_buf[i] = buf[i];
+	// 	i++;
+	// }
+	ft_strcpy(new_buf, buf);
 
 	// read(fd, &new_buf[i], BUFFER_SIZE);
-	int	read_value;
-	read_value = read(fd, &new_buf[i], BUFFER_SIZE);
+	int	read_return;
+	read_return = read(fd, &(new_buf[buf_len]), BUFFER_SIZE);
 	// printf("%d\n", read_value );
 	
 	//free buf
 	free(buf);
+	buf = NULL;
 	//assign new pointer to old buf pointer
 	buf = new_buf;
 
-	return (read_value); //return value of read()
+	return (read_return); //return value of read()
 }
 
 char	*get_next_line(int fd)
