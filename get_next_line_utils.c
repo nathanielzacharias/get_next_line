@@ -23,10 +23,10 @@ int ft_strlen(char *buf)
 	return (buf_len);
 }
 
-void	ft_bzero(char *str)
+void	ft_bzerolen(char *str, int buf_len)
 {
-	int buf_len;
-	buf_len = ft_strlen(str);
+	// int buf_len;
+	// buf_len = ft_strlen(str);
 
 	int j;
 	j = 0;
@@ -37,14 +37,11 @@ void	ft_bzero(char *str)
 	}
 }
 
-void	ft_strcpy(char *dest, char *src)
+void	ft_strlcpy(char *dest, char *src, int len)
 {
-	int	src_len;
-	src_len = ft_strlen(src);
-
 	int i;
 	i = 0;
-	while (i < src_len)
+	while (i < len)
 	{
 		dest[i] = src[i];
 		i++;
