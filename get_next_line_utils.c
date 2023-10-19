@@ -13,40 +13,50 @@
 #include "get_next_line.h"
 #include <stdio.h>
 
-int ft_strlen(char *buf)
+size_t	ft_strlen(char const *str)
 {
-	//ft_strlen();
-	int	buf_len;
+	size_t	len;
 
-	buf_len = 0;
-	while (buf[buf_len])
-		buf_len++;
-	return (buf_len);
+	len = 0;
+	while (*str++)
+		++len;
+	return (len);
+}
+
+char	*ft_strjoin(char const *s1, char const *s2)
+{
+	char	*str;
+	size_t	len;
+	size_t	i;
+	size_t	j;
+
+	len = ft_strlen(s1) + ft_strlen(s2) + 1;
+	str = (char *)malloc(len * sizeof(char));
+	if (!str)
+		return (NULL);
+	i = 0;
+	while (i < ft_strlen((char *)s1))
+	{
+		str[i] = s1[i];
+		i++;
+	}
+	j = 0;
+	while (j < ft_strlen((char *)s2))
+	{
+		str[i + j] = s2[j];
+		j++;
+	}
+	str[i + j] = '\0';
+	return (str);
 }
 
 void	ft_bzerolen(char *str, int buf_len)
 {
-	// int buf_len;
-	// buf_len = ft_strlen(str);
-
-	printf("buf_len is:%d\n", buf_len);
-
-	int j;
+	int	j;
 	j = 0;
 	while (j < buf_len)
 	{
 		str[j] = 0;
 		j++;
-	}
-}
-
-void	ft_strlcpy(char *dest, char *src, int len)
-{
-	int i;
-	i = 0;
-	while (i < len)
-	{
-		dest[i] = src[i];
-		i++;
 	}
 }

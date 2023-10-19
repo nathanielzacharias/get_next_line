@@ -24,8 +24,8 @@
 #endif //BUFFER_SIZE
 
 char	*get_next_line(int fd);
-int 	ft_strlen(char *buf);
+size_t	ft_strlen(char const *str);
+char	*ft_strjoin(char const *s1, char const *s2);
 void	ft_bzerolen(char *str, int buf_len);
-void	ft_strlcpy(char *dest, char *src, int len);
 
 #endif //GET_NEXT_LINE_H
