@@ -31,8 +31,8 @@ char *read_to_temp(char *temp, int fd, int *read_return)
 	temp = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!temp)
 		return (NULL);
-	temp[BUFFER_SIZE] = '\0';
 	*read_return = read(fd, temp, BUFFER_SIZE);
+	temp[*read_return] = '\0';
 	return (temp);
 }
 
