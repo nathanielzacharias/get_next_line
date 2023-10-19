@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include <stdio.h>
 
 int ft_strlen(char *buf)
 {
@@ -28,11 +29,13 @@ void	ft_bzerolen(char *str, int buf_len)
 	// int buf_len;
 	// buf_len = ft_strlen(str);
 
+	printf("buf_len is:%d\n", buf_len);
+
 	int j;
 	j = 0;
 	while (j < buf_len)
 	{
-		str[j] = '0';
+		str[j] = 0;
 		j++;
 	}
 }
