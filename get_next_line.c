@@ -17,11 +17,11 @@ char 	*make_new_buf(void)
 {
 	char	*buf;
 
-	buf = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
+	buf = (char *)malloc((1) * sizeof(char));
 	if (!buf)
 		return (NULL);
-	buf[BUFFER_SIZE] = '\0';
-	ft_bzerolen(buf, (BUFFER_SIZE));
+	buf[0] = '\0';
+	// ft_bzerolen(buf, (BUFFER_SIZE));
 	return (buf);
 }
 
@@ -32,6 +32,8 @@ char *read_to_temp(char *temp, int fd, int *read_return)
 	if (!temp)
 		return (NULL);
 	*read_return = read(fd, temp, BUFFER_SIZE);
+	if (*read_return < 0)
+		return (NULL);
 	temp[*read_return] = '\0';
 	return (temp);
 }
@@ -93,7 +95,7 @@ char *realloc_buf(char *buf, int fake_pos)
 		return (NULL);
 	str[len] = '\0';
 	j = 0;
-	while (j < len )
+	while (j < len)
 	{
 		str[j] = buf[fake_pos + j];
 		j++;
@@ -111,55 +113,70 @@ char	*get_next_line(int fd)
 	
 	if (!buf)
 		buf = make_new_buf();
+		// return (NULL);
 	newline = 0;
-	read_return = 1;
-	while (!newline && read_return > 0)
+	read_return = 0;
+	while (!newline)
 	{
 		temp = read_to_temp(temp, fd, &read_return);
+		if (!temp)
+			return (NULL);
 		buf = ft_strjoin(buf, temp);
 		free(temp);
 		newline = find_newline_in(buf); //indexed-1 position
-	}
-	if (read_return == -1)
-	{
-		// free(buf);
-		return (NULL);
+		if (read_return == 0)
+			break ;
 	}
  	if (newline)
  	{
 		temp = extract_line_from(buf, newline); //newline-1
 		if (!temp)
 		{
-			// free(buf);
+			free(buf);
 			return (NULL);
 		}
 		buf = realloc_buf(buf, newline);
 		return (temp);
  	}
-	else if (read_return == 0)
-		return (buf);
+	else if (read_return == 0) ///read_return < bufsize && !newline
+	{
+		temp = extract_line_from(buf, ft_strlen(buf) + 1);
+		// free(buf);
+		if (!temp)
+		{
+			free(buf);
+			return (NULL);
+		}
+		// buf = realloc_buf(buf, ft_strlen(buf) + 1);
+		free (buf);
+		buf = NULL;
+		// printf("buf is:%s\n", buf);
+		return (temp);
+		// return (buf);
+	}
+	return (NULL);
 }
 
-#include <fcntl.h>
-int	main(void)
-{
-	// printf("%s\n", "here in main" );
-	// fflush(stdout);
+// #include <fcntl.h>
+// int	main(void)
+// {
+// 	// printf("%d\n", BUFFER_SIZE );
+// 	// fflush(stdout);
 
-	int	fd;
-	fd = open("nat.txt", O_RDONLY);
-	// fd = open("empty_file.txt", O_RDONLY);
-	// get_next_line(fd);
+// 	int	fd;
+// 	fd = open("nat.txt", O_RDONLY);
+// 	// fd = open("empty_file.txt", O_RDONLY);
+// 	// get_next_line(fd);
 
-	printf("get_next_line is:%s", get_next_line(fd));
-	printf("get_next_line is:%s", get_next_line(fd));
-	printf("get_next_line is:%s", get_next_line(fd));
-	printf("get_next_line is:%s", get_next_line(fd));
-	printf("get_next_line is:%s", get_next_line(fd));
-	printf("get_next_line is:%s", get_next_line(fd));
-	printf("get_next_line is:%s", get_next_line(fd));
-	printf("get_next_line is:%s", get_next_line(fd));
-	printf("get_next_line is:%s", get_next_line(fd));
-	// printf("get_next_line is:%s", get_next_line(fd));
-	// printf("get_next_line is:%s", get_next_line(fd));
-}
+// 	printf("get_next_line is:%s", get_next_line(fd));
+// 	printf("get_next_line is:%s", get_next_line(fd));
+// 	printf("get_next_line is:%s", get_next_line(fd));
+// 	printf("get_next_line is:%s", get_next_line(fd));
+// 	printf("get_next_line is:%s", get_next_line(fd));
+// 	printf("get_next_line is:%s", get_next_line(fd));
+// 	printf("get_next_line is:%s", get_next_line(fd));
+// 	printf("get_next_line is:%s", get_next_line(fd));
+// 	printf("get_next_line is:%s", get_next_line(fd));
+// 	printf("get_next_line is:%s", get_next_line(fd));
+// 	printf("get_next_line is:%s", get_next_line(fd));
+// }
