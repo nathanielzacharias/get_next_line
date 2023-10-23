@@ -21,30 +21,22 @@ char 	*make_new_buf(void)
 	if (!buf)
 		return (NULL);
 	buf[0] = '\0';
-	// ft_bzerolen(buf, (BUFFER_SIZE));
 	return (buf);
 }
 
 char *read_to_temp(char *temp, int fd, int *read_return)
 {
-	// free(temp);
 	temp = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!temp)
 		return (NULL);
+
 	*read_return = read(fd, temp, BUFFER_SIZE);
 	if (*read_return < 0)
 		return (NULL);
-	temp[*read_return] = '\0';
-	return (temp);
-}
 
-int	gnl_strlen(char *str)
-{
-	int i;
-	i = 0;
-	while (str[i])
-		i++;
-	return(i);
+	temp[*read_return] = '\0';
+
+	return (temp);
 }
 
 int	find_newline_in(char *str)
@@ -69,13 +61,16 @@ char	*extract_line_from(char *buf, int fake_pos)
 	extracted_line = (char *)malloc(fake_pos * sizeof(char));
 	if (!extracted_line)
 		return (NULL);
-	extracted_line[fake_pos] = '\0';
+
+	extracted_line[fake_pos-1] = '\0';
+
 	i = 0;
-	while (i < fake_pos)
+	while (i < (fake_pos-1))
 	{
 		extracted_line[i] = buf[i];
 		i++;
 	}
+
 	return (extracted_line);
 }
 
@@ -88,19 +83,24 @@ char *realloc_buf(char *buf, int fake_pos)
 	i = fake_pos;
 	while (buf[i] != '\0')
 		i++; //confirmed i is after newline to nullterm exclusive
+
 	len = i - (fake_pos - 1);
+
+	//malloc the return string as str
 	char	*str;
 	str = (char *)malloc((len + 1) * sizeof(char));
 	if (!str)
 		return (NULL);
 	str[len] = '\0';
+
+	//copy from buf past newline character to str
 	j = 0;
 	while (j < len)
 	{
 		str[j] = buf[fake_pos + j];
 		j++;
 	}
-	//free(buf);
+
 	return (str);
 }
 
@@ -108,52 +108,88 @@ char	*get_next_line(int fd)
 {
 	static char 	*buf;
 	char			*temp;
+	char			*to_free;
 	int				newline;
 	int				read_return;
 	
+	if (fd < 0 || fd > 1023 || BUFFER_SIZE <= 0)
+		return (NULL);
+	
 	if (!buf)
 		buf = make_new_buf();
-		// return (NULL);
+
 	newline = 0;
 	read_return = 0;
-	while (!newline)
+
+	while (!newline) 
 	{
 		temp = read_to_temp(temp, fd, &read_return);
 		if (!temp)
 			return (NULL);
+		else if (*temp == '\0')
+		{
+			free(temp);
+			return (NULL);
+		}
+
+
+		to_free = buf;
 		buf = ft_strjoin(buf, temp);
+		if (!buf)
+			return (NULL);
+
+		free(to_free);
+		to_free = NULL;
 		free(temp);
+		temp = NULL;
+
 		newline = find_newline_in(buf); //indexed-1 position
 		if (read_return == 0)
 			break ;
 	}
+	//above all freed
+
  	if (newline)
  	{
 		temp = extract_line_from(buf, newline); //newline-1
 		if (!temp)
 		{
 			free(buf);
+			free(temp);
 			return (NULL);
 		}
+
+		to_free = buf;
 		buf = realloc_buf(buf, newline);
+		if (!buf)
+		{
+			free(buf);
+			free(temp);
+			return(NULL);
+		}
+		free(to_free);
+		to_free = NULL;
+
 		return (temp);
  	}
-	else if (read_return == 0) ///read_return < bufsize && !newline
+
+
+	else if (read_return == 0) //read_return < bufsize && !newline
 	{
 		temp = extract_line_from(buf, ft_strlen(buf) + 1);
-		// free(buf);
 		if (!temp)
 		{
 			free(buf);
+			free(temp);
 			return (NULL);
 		}
-		// buf = realloc_buf(buf, ft_strlen(buf) + 1);
+
 		free (buf);
 		buf = NULL;
-		// printf("buf is:%s\n", buf);
+
 		return (temp);
-		// return (buf);
 	}
+
 	return (NULL);
 }
 
@@ -166,17 +202,15 @@ char	*get_next_line(int fd)
 // 	int	fd;
 // 	fd = open("nat.txt", O_RDONLY);
 // 	// fd = open("empty_file.txt", O_RDONLY);
-// 	// get_next_line(fd);
 
-// 	printf("get_next_line is:%s", get_next_line(fd));
-// 	printf("get_next_line is:%s", get_next_line(fd));
-// 	printf("get_next_line is:%s", get_next_line(fd));
-// 	printf("get_next_line is:%s", get_next_line(fd));
-// 	printf("get_next_line is:%s", get_next_line(fd));
-// 	printf("get_next_line is:%s", get_next_line(fd));
-// 	printf("get_next_line is:%s", get_next_line(fd));
-// 	printf("get_next_line is:%s", get_next_line(fd));
-// 	printf("get_next_line is:%s", get_next_line(fd));
-// 	printf("get_next_line is:%s", get_next_line(fd));
-// 	printf("get_next_line is:%s", get_next_line(fd));
+// 	int i = -1;
+// 	while (++i < 10)
+// 	{
+// 		char *test = get_next_line(fd);
+// 		printf("get_next_line is:%s", test);
+// 		free(test);
+// 	}
+
+// 	close(fd);
+
 // }

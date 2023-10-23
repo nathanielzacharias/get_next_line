@@ -34,19 +34,27 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	str = (char *)malloc(len * sizeof(char));
 	if (!str)
 		return (NULL);
+	
+	//copy from s1 to str
 	i = 0;
 	while (i < ft_strlen((char *)s1))
 	{
 		str[i] = s1[i];
 		i++;
 	}
+
+	//copy from s2 to str
 	j = 0;
 	while (j < ft_strlen((char *)s2))
 	{
 		str[i + j] = s2[j];
 		j++;
 	}
+
+	//null terminate
 	str[i + j] = '\0';
+
+	
 	return (str);
 }
 
