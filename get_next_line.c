@@ -126,12 +126,11 @@ char	*get_next_line(int fd)
 		temp = read_to_temp(temp, fd, &read_return);
 		if (!temp)
 			return (NULL);
-		else if (*temp == '\0')
+		else if (*temp == '\0') //to handle empty file
 		{
 			free(temp);
 			return (NULL);
 		}
-
 
 		to_free = buf;
 		buf = ft_strjoin(buf, temp);
@@ -143,13 +142,30 @@ char	*get_next_line(int fd)
 		free(temp);
 		temp = NULL;
 
-		newline = find_newline_in(buf); //indexed-1 position
 		if (read_return == 0)
 			break ;
+
+		newline = find_newline_in(buf); //indexed-1 position
 	}
 	//above all freed
 
- 	if (newline)
+ 	if (read_return == 0) //read_return < bufsize && !newline
+	{
+		temp = extract_line_from(buf, ft_strlen(buf) + 1);
+		if (!temp)
+		{
+			free(buf);
+			free(temp);
+			return (NULL);
+		}
+
+		free (buf);
+		buf = NULL;
+
+		return (temp);
+	}
+
+ 	else if (newline)
  	{
 		temp = extract_line_from(buf, newline); //newline-1
 		if (!temp)
@@ -174,43 +190,29 @@ char	*get_next_line(int fd)
  	}
 
 
-	else if (read_return == 0) //read_return < bufsize && !newline
-	{
-		temp = extract_line_from(buf, ft_strlen(buf) + 1);
-		if (!temp)
-		{
-			free(buf);
-			free(temp);
-			return (NULL);
-		}
 
-		free (buf);
-		buf = NULL;
-
-		return (temp);
-	}
 
 	return (NULL);
 }
 
-// #include <fcntl.h>
-// int	main(void)
-// {
-// 	// printf("%d\n", BUFFER_SIZE );
-// 	// fflush(stdout);
+#include <fcntl.h>
+int	main(void)
+{
+	// printf("%d\n", BUFFER_SIZE );
+	// fflush(stdout);
 
-// 	int	fd;
-// 	fd = open("nat.txt", O_RDONLY);
-// 	// fd = open("empty_file.txt", O_RDONLY);
+	int	fd;
+	fd = open("nat.txt", O_RDONLY);
+	// fd = open("empty_file.txt", O_RDONLY);
 
-// 	int i = -1;
-// 	while (++i < 10)
-// 	{
-// 		char *test = get_next_line(fd);
-// 		printf("get_next_line is:%s", test);
-// 		free(test);
-// 	}
+	int i = -1;
+	while (++i < 10)
+	{
+		char *test = get_next_line(fd);
+		printf("get_next_line is:%s\n", test);
+		free(test);
+	}
 
-// 	close(fd);
+	close(fd);
 
-// }
+}

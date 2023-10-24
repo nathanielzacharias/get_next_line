@@ -45,10 +45,12 @@ char	*read_into_buffer(char **buffer, ssize_t *nl_pos, ssize_t *read_bytes, int 
 		if(!(*buffer))
 			return(NULL);
 		(*buffer)[BUFFER_SIZE] = 0;
+
 		*read_bytes = read(fd, *buffer, BUFFER_SIZE);
 	}
-	printf("in read into buf\n");
-	fflush(stdout);
+
+	// printf("in read into buf\n");
+	// fflush(stdout);
 
 	if (*buffer) //if buffer exists, find newline, if newline exists return buffer
 	{
@@ -75,7 +77,7 @@ char	*read_into_buffer(char **buffer, ssize_t *nl_pos, ssize_t *read_bytes, int 
 	i = 0;
 	while (i < len)
 	{
-		temp[i] = *buffer[i];
+		temp[i] = (*buffer)[i];
 		i++;
 	}
 
@@ -97,24 +99,24 @@ char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp)
 	size_t	i;
 	size_t	j;
 
-	terminated_str = malloc(*nl_pos + 1);
+	terminated_str = malloc((*nl_pos + 1) + 1);
 	if (!terminated_str)
 		return (NULL);
+	terminated_str[(*nl_pos + 1)] = 0;
 
 	//copy from buffer to terminated_str
 	i = 0;
 	while (i < (*nl_pos + 1))
 	{
-		terminated_str[i] = *buffer[i];
+		terminated_str[i] = (*buffer)[i];
 		i++;
 	}
-	terminated_str[*nl_pos + 1] = 0;
 
 	//find buffer len from nl_pos to end
-	len = *nl_pos;
+	len = (*nl_pos + 1);
 	while((*buffer)[len])
 		len++;
-	len -= *nl_pos;
+	len -= (*nl_pos + 1);
 
 	//malloc temp
 	*temp = malloc(len + 1);
@@ -123,7 +125,7 @@ char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp)
 
 	//copy from buf to temp
 	i = 0;
-	j = *nl_pos;
+	j = (*nl_pos + 1);
 	while (i < len)
 	{
 		(*temp)[i] = (*buffer)[j];
@@ -159,14 +161,15 @@ char	*get_next_line(int fd)
 
 	while (1)
 	{
-		printf("here in while 1\n");
-		fflush(stdout);
+		// printf("here in while 1\n");
+		// fflush(stdout);
 		buffer = read_into_buffer(&buffer, &nl_pos, &read_bytes, fd);
 		if (nl_pos >= 0)
 			break ;
 		else if (read_bytes <= 0)
 			break ;
 	}
+	
 
 	if (read_bytes == 0) //eof reached
 	{
@@ -175,17 +178,18 @@ char	*get_next_line(int fd)
 		return (processed_line(&nl_pos, &buffer, &temp));
 	}
 
-	else if (read_bytes > 0)
-		return (processed_line(&nl_pos, &buffer, &temp));
+	// printf("here between ifs\n");
+	// fflush(stdout);
 
-	printf("here between ifs\n");
-	fflush(stdout);
-	// if (read_bytes == -1) //fd error
-	// {
-	free(buffer);
-	buffer = NULL;
-	return (NULL);
-	// }
+	else if (read_bytes == -1) //fd error
+	{
+		free(buffer);
+		buffer = NULL;
+		return (NULL);
+	}
+
+	// if (read_bytes > 0)
+	return (processed_line(&nl_pos, &buffer, &temp));
 }
 
 #include <fcntl.h>
@@ -198,11 +202,13 @@ int	main(void)
 	// fd = open("empty_file.txt", O_RDONLY);
 
 	int i = -1;
-	while (++i < 2)
+	while (++i < 10)
 	{
 		char *test = get_next_line(fd);
-		printf("get_next_line is:%s\n", test);
+		printf("get_next_line is:%s", test);
+		fflush(stdout);
 		free(test);
 	}
+
 	close(fd);
 }
