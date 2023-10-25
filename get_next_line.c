@@ -1,218 +1,247 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   v2.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nzachari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/13 13:41:29 by nzachari          #+#    #+#             */
-/*   Updated: 2023/10/14 16:44:12 by nzachari         ###   ########.fr       */
+/*   Created: 2023/10/23 22:31:25 by nzachari          #+#    #+#             */
+/*   Updated: 2023/10/24 10:07:22 by nzachari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 #include <stdio.h>
 #include "get_next_line.h"
 
-char 	*make_new_buf(void)
+ssize_t	find_newline_in(char *str)
 {
-	char	*buf;
-
-	buf = (char *)malloc((1) * sizeof(char));
-	if (!buf)
-		return (NULL);
-	buf[0] = '\0';
-	return (buf);
-}
-
-char *read_to_temp(char *temp, int fd, int *read_return)
-{
-	temp = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (!temp)
-		return (NULL);
-
-	*read_return = read(fd, temp, BUFFER_SIZE);
-	if (*read_return < 0)
-		return (NULL);
-
-	temp[*read_return] = '\0';
-
-	return (temp);
-}
-
-int	find_newline_in(char *str)
-{
-	int i;
+	ssize_t i;
 	i = 0;
 
-	while (str[i] != '\n')
-	{
-		if (str[i] == '\0')
-			return (0);
+	while (str[i] && str[i] != '\n')
 		i++;
-	}
-	return (i + 1);
+	if (!str[i])
+		return (-1);
+	else 
+		return (i);
 }
 
-char	*extract_line_from(char *buf, int fake_pos)
+// size_t	ft_strlen(char const *str)
+// {
+// 	size_t	len;
+
+// 	len = 0;
+// 	while (*str++)
+// 		++len;
+// 	return (len);
+// }
+
+char	*read_into_buffer(char **buffer, ssize_t *nl_pos, ssize_t *read_bytes, int fd)
 {
-	char	*extracted_line;
-	int 	i;
 
-	extracted_line = (char *)malloc(fake_pos * sizeof(char));
-	if (!extracted_line)
-		return (NULL);
-
-	extracted_line[fake_pos-1] = '\0';
-
-	i = 0;
-	while (i < (fake_pos-1))
+	if (!(*buffer)) //if buffer doesnt exist, malloc buffer_size
 	{
-		extracted_line[i] = buf[i];
-		i++;
-	}
-
-	return (extracted_line);
-}
-
-char *realloc_buf(char *buf, int fake_pos)
-{
-	int i;
-	int j;
-	int len;
-
-	i = fake_pos;
-	while (buf[i] != '\0')
-		i++; //confirmed i is after newline to nullterm exclusive
-
-	len = i - (fake_pos - 1);
-
-	//malloc the return string as str
-	char	*str;
-	str = (char *)malloc((len + 1) * sizeof(char));
-	if (!str)
-		return (NULL);
-	str[len] = '\0';
-
-	//copy from buf past newline character to str
-	j = 0;
-	while (j < len)
-	{
-		str[j] = buf[fake_pos + j];
-		j++;
-	}
-
-	return (str);
-}
-
-char	*get_next_line(int fd)
-{
-	static char 	*buf;
-	char			*temp;
-	char			*to_free;
-	int				newline;
-	int				read_return;
-	
-	if (fd < 0 || fd > 1023 || BUFFER_SIZE <= 0)
-		return (NULL);
-	
-	if (!buf)
-		buf = make_new_buf();
-
-	newline = 0;
-	read_return = 0;
-
-	while (!newline) 
-	{
-		temp = read_to_temp(temp, fd, &read_return);
-		if (!temp)
-			return (NULL);
-		else if (*temp == '\0') //to handle empty file
-		{
-			free(temp);
-			return (NULL);
-		}
-
-		to_free = buf;
-		buf = ft_strjoin(buf, temp);
-		if (!buf)
-			return (NULL);
-
-		free(to_free);
-		to_free = NULL;
-		free(temp);
-		temp = NULL;
-
-		if (read_return == 0)
-			break ;
-
-		newline = find_newline_in(buf); //indexed-1 position
-	}
-	//above all freed
-
- 	if (read_return == 0) //read_return < bufsize && !newline
-	{
-		temp = extract_line_from(buf, ft_strlen(buf) + 1);
-		if (!temp)
-		{
-			free(buf);
-			free(temp);
-			return (NULL);
-		}
-
-		free (buf);
-		buf = NULL;
-
-		return (temp);
-	}
-
- 	else if (newline)
- 	{
-		temp = extract_line_from(buf, newline); //newline-1
-		if (!temp)
-		{
-			free(buf);
-			free(temp);
-			return (NULL);
-		}
-
-		to_free = buf;
-		buf = realloc_buf(buf, newline);
-		if (!buf)
-		{
-			free(buf);
-			free(temp);
+		*buffer = malloc(BUFFER_SIZE + 1);
+		if(!(*buffer))
 			return(NULL);
+		(*buffer)[BUFFER_SIZE] = 0;
+
+		*read_bytes = read(fd, *buffer, BUFFER_SIZE);
+		if (*read_bytes < 1)
+		{
+			free(*buffer);
+			*buffer = NULL;
+			return (NULL);
 		}
-		free(to_free);
-		to_free = NULL;
+	}
 
-		return (temp);
- 	}
+	if (*buffer) //if buffer exists, find newline, if newline exists return buffer
+		*nl_pos = find_newline_in(*buffer);
+	
+	if (*nl_pos >= 0)
+		return (*buffer);
 
+	else if (*nl_pos < 0)
+	{
+		// printf("in read into buf\n");
+		// fflush(stdout);
 
+		//else add to buffer
 
+		//find len
+		int len;
+		len = ft_strlen(*buffer);
+
+		//temp = malloc len + BUFSIZE
+		char *temp;
+		temp = malloc (len + BUFFER_SIZE + 1);
+		if (!temp)
+			return (NULL);
+		temp[len + BUFFER_SIZE] = '\0';
+
+		int i;
+		i = 0;
+		while (i < len + BUFFER_SIZE)
+		{
+			temp[i] = 0;
+			i++;
+		}
+		
+		//copy to temp from buf
+		// int i;
+		i = 0;
+		while (i < len)
+		{
+			temp[i] = (*buffer)[i];
+			i++;
+		}
+
+		//read from fd to end of temp
+		*read_bytes = read(fd, &temp[i], BUFFER_SIZE);
+
+		//free buff, assign temp to buf
+		free(*buffer);
+		*buffer = temp;
+		// free(temp);
+
+		//return buffer
+		return (*buffer);
+	}
 
 	return (NULL);
 }
 
-#include <fcntl.h>
-int	main(void)
+char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp)
 {
-	// printf("%d\n", BUFFER_SIZE );
-	// fflush(stdout);
+	char *terminated_str;
+	ssize_t	len;
+	ssize_t	i;
+	ssize_t	j;
 
-	int	fd;
-	fd = open("nat.txt", O_RDONLY);
-	// fd = open("empty_file.txt", O_RDONLY);
+	terminated_str = malloc((*nl_pos + 1) + 1);
+	if (!terminated_str)
+		return (NULL);
+	terminated_str[(*nl_pos + 1)] = 0;
 
-	int i = -1;
-	while (++i < 10)
+	//copy from buffer to terminated_str
+	i = 0;
+	while (i < (*nl_pos + 1))
 	{
-		char *test = get_next_line(fd);
-		printf("get_next_line is:%s\n", test);
-		free(test);
+		terminated_str[i] = (*buffer)[i];
+		i++;
 	}
 
-	close(fd);
+	//find buffer len from nl_pos to end
+	len = (*nl_pos);
+	while((*buffer)[len])
+		len++;
+	len -= (*nl_pos + 1);
 
+	//malloc temp
+	*temp = malloc(len + 1);
+	if (!*temp)
+		return (NULL);
+
+	//copy from buf to temp
+	i = 0;
+	j = (*nl_pos + 1);
+	while (i < len)
+	{
+		(*temp)[i] = (*buffer)[j];
+		i++;
+		j++;
+	}
+	(*temp)[len] = 0;
+
+	//free buffer and reassign
+	free(*buffer);
+	*buffer = *temp;
+
+	return(terminated_str);
 }
+
+char *processed_line(ssize_t *nl_pos, char **buffer, char **temp)
+{
+	if (*nl_pos == -1) //nl not found && buffer not empty so return buffer
+		return (*buffer);
+	else
+		return (term_and_store(nl_pos, buffer, temp));
+}
+
+char	*get_next_line(int fd)
+{
+	static char	*buffer;
+	char		*temp;
+	ssize_t		nl_pos;
+	ssize_t		read_bytes;
+
+	if (fd < 0 || fd > 1023 || BUFFER_SIZE < 1)
+		return (NULL);
+
+	nl_pos = -1;
+	read_bytes = -1;
+	while (1)
+	{
+		// printf("here in while 1\n");
+		// fflush(stdout);
+		buffer = read_into_buffer(&buffer, &nl_pos, &read_bytes, fd);
+		if (read_bytes > 0 && (!buffer || *buffer == '\0'))
+		{
+			free(buffer);
+			buffer = NULL;
+			return (NULL);
+		}
+		else if (!buffer)
+		{
+			return (NULL);
+		}
+		if (nl_pos >= 0 || read_bytes <= 0)
+			break ;
+		// if (nl_pos >= 0)
+		// 	break ;
+	}
+
+	if (read_bytes == 0) //eof reached
+	{
+		if(!(*buffer))	//reading past last line in fd
+		{
+			free(buffer);
+			buffer = NULL;
+			return (NULL);
+		}
+		return (processed_line(&nl_pos, &buffer, &temp));
+	}
+
+	// printf("here between ifs\n");
+	// fflush(stdout);
+
+	else if (read_bytes == -1) //fd error
+	{
+		free(buffer);
+		buffer = NULL;
+		return (NULL);
+	}
+
+	// if (read_bytes > 0)
+	return (processed_line(&nl_pos, &buffer, &temp));
+}
+
+// #include <fcntl.h>
+// int	main(void)
+// {
+// 	// printf("%d\n", BUFFER_SIZE );
+// 	// fflush(stdout);
+// 	int	fd;
+// 	fd = open("nat.txt", O_RDONLY);
+// 	// fd = open("1char.txt", O_RDONLY);
+// 	// fd = open("empty_file.txt", O_RDONLY);
+
+// 	int i = -1;
+// 	while (++i < 10)
+// 	{
+// 		char *test = get_next_line(fd);
+// 		printf("get_next_line is:%s", test);
+// 		fflush(stdout);
+// 		// free(test);
+// 	}
+// 	close(fd);
+// }
