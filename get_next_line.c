@@ -12,6 +12,13 @@
 #include <stdio.h>
 #include "get_next_line.h"
 
+char *freed_and_nullified(char **ptr)
+{
+	free(*ptr);
+	*ptr = NULL;
+	return (*ptr);
+}
+
 ssize_t	find_newline_in(char *str)
 {
 	ssize_t i;
@@ -45,13 +52,18 @@ char	*read_into_buffer(char **buffer, ssize_t *nl_pos, ssize_t *read_bytes, int 
 			return(NULL);
 		(*buffer)[BUFFER_SIZE] = 0;
 
+		int i;
+		i = 0;
+		while (i < BUFFER_SIZE)
+		{
+			(*buffer)[i] = 0;
+			i++;
+		}
+
+
 		*read_bytes = read(fd, *buffer, BUFFER_SIZE);
 		if (*read_bytes < 1)
-		{
-			free(*buffer);
-			*buffer = NULL;
-			return (NULL);
-		}
+			return (freed_and_nullified(buffer));
 	}
 
 	if (*buffer) //if buffer exists, find newline, if newline exists return buffer
@@ -85,7 +97,7 @@ char	*read_into_buffer(char **buffer, ssize_t *nl_pos, ssize_t *read_bytes, int 
 			temp[i] = 0;
 			i++;
 		}
-		
+
 		//copy to temp from buf
 		// int i;
 		i = 0;
@@ -162,7 +174,27 @@ char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp)
 char *processed_line(ssize_t *nl_pos, char **buffer, char **temp)
 {
 	if (*nl_pos == -1) //nl not found && buffer not empty so return buffer
-		return (*buffer);
+	{
+		//malloced and copied temp
+		*temp = malloc(ft_strlen(*buffer) + 1);
+		if (!(*temp))
+			return (NULL);
+
+		int i;
+		i = 0;
+		while((*buffer)[i])
+		{
+			(*temp)[i] = (*buffer)[i];
+			i++;
+		}
+		(*temp)[i] = 0;
+
+
+		// *temp = *buffer;
+		free(*buffer);
+		*buffer = NULL;
+		return (*temp);
+	}
 	else
 		return (term_and_store(nl_pos, buffer, temp));
 }
@@ -179,69 +211,48 @@ char	*get_next_line(int fd)
 
 	nl_pos = -1;
 	read_bytes = -1;
+
+
 	while (1)
 	{
 		// printf("here in while 1\n");
 		// fflush(stdout);
 		buffer = read_into_buffer(&buffer, &nl_pos, &read_bytes, fd);
-		if (read_bytes > 0 && (!buffer || *buffer == '\0'))
-		{
-			free(buffer);
-			buffer = NULL;
-			return (NULL);
-		}
-		else if (!buffer)
-		{
-			return (NULL);
-		}
+		if ( !buffer || (read_bytes > 0 && (!buffer || *buffer == '\0')))
+			return (freed_and_nullified(&buffer));
 		if (nl_pos >= 0 || read_bytes <= 0)
 			break ;
-		// if (nl_pos >= 0)
-		// 	break ;
 	}
 
-	if (read_bytes == 0) //eof reached
+	if (read_bytes <= 0) //eof reached or error fd
 	{
-		if(!(*buffer))	//reading past last line in fd
-		{
-			free(buffer);
-			buffer = NULL;
-			return (NULL);
-		}
-		return (processed_line(&nl_pos, &buffer, &temp));
-	}
-
-	// printf("here between ifs\n");
-	// fflush(stdout);
-
-	else if (read_bytes == -1) //fd error
-	{
-		free(buffer);
-		buffer = NULL;
-		return (NULL);
+		if(!(buffer) || read_bytes == -1)	//reading past last line in fd
+			return (freed_and_nullified(&buffer));
+		else
+			return (processed_line(&nl_pos, &buffer, &temp));
 	}
 
 	// if (read_bytes > 0)
 	return (processed_line(&nl_pos, &buffer, &temp));
 }
 
-// #include <fcntl.h>
-// int	main(void)
-// {
-// 	// printf("%d\n", BUFFER_SIZE );
-// 	// fflush(stdout);
-// 	int	fd;
-// 	fd = open("nat.txt", O_RDONLY);
-// 	// fd = open("1char.txt", O_RDONLY);
-// 	// fd = open("empty_file.txt", O_RDONLY);
+#include <fcntl.h>
+int	main(void)
+{
+	// printf("%d\n", BUFFER_SIZE );
+	// fflush(stdout);
+	int	fd;
+	// fd = open("nat.txt", O_RDONLY);
+	fd = open("1char.txt", O_RDONLY);
+	// fd = open("empty_file.txt", O_RDONLY);
 
-// 	int i = -1;
-// 	while (++i < 10)
-// 	{
-// 		char *test = get_next_line(fd);
-// 		printf("get_next_line is:%s", test);
-// 		fflush(stdout);
-// 		// free(test);
-// 	}
-// 	close(fd);
-// }
+	int i = -1;
+	while (++i < 10)
+	{
+		char *test = get_next_line(fd);
+		printf("get_next_line is:%s", test);
+		fflush(stdout);
+		free(test);
+	}
+	close(fd);
+}
