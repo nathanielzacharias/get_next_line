@@ -243,7 +243,7 @@ int	main(void)
 	// fflush(stdout);
 	int	fd;
 	// fd = open("nat.txt", O_RDONLY);
-	fd = open("1char.txt", O_RDONLY);
+	fd = open("alternate_line_nl_no_nl", O_RDONLY);
 	// fd = open("empty_file.txt", O_RDONLY);
 
 	int i = -1;
