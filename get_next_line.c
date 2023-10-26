@@ -136,17 +136,21 @@ char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp)
 
 	//copy from buffer to terminated_str
 	i = 0;
-	while (i < (*nl_pos + 1))
+	while (i < (*nl_pos + 1)) //nl_pos == 0
 	{
 		terminated_str[i] = (*buffer)[i];
 		i++;
 	}
 
 	//find buffer len from nl_pos to end
-	len = (*nl_pos);
+	len = (*nl_pos + 1);
 	while((*buffer)[len])
-		len++;
-	len -= (*nl_pos + 1);
+		len++;			  //len == 1	
+	// printf("len before -= is:%zi\n", len);
+	// fflush(stdout);
+	len -= (*nl_pos ); //len == 0
+	// printf("len after -= is:%zi\n", len );
+	// fflush(stdout);
 
 	//malloc temp
 	*temp = malloc(len + 1);
@@ -226,7 +230,7 @@ char	*get_next_line(int fd)
 
 	if (read_bytes <= 0) //eof reached or error fd
 	{
-		if(!(buffer) || read_bytes == -1)	//reading past last line in fd
+		if(!(buffer) || (read_bytes == -1 && nl_pos == -1))	//reading past last line in fd
 			return (freed_and_nullified(&buffer));
 		else
 			return (processed_line(&nl_pos, &buffer, &temp));
@@ -236,23 +240,23 @@ char	*get_next_line(int fd)
 	return (processed_line(&nl_pos, &buffer, &temp));
 }
 
-#include <fcntl.h>
-int	main(void)
-{
-	// printf("%d\n", BUFFER_SIZE );
-	// fflush(stdout);
-	int	fd;
-	// fd = open("nat.txt", O_RDONLY);
-	fd = open("alternate_line_nl_no_nl", O_RDONLY);
-	// fd = open("empty_file.txt", O_RDONLY);
+// #include <fcntl.h>
+// int	main(void)
+// {
+// 	// printf("%d\n", BUFFER_SIZE );
+// 	// fflush(stdout);
+// 	int	fd;
+// 	// fd = open("nat.txt", O_RDONLY);
+// 	fd = open("alternate_line_nl_no_nl", O_RDONLY);
+// 	// fd = open("empty_file.txt", O_RDONLY);
 
-	int i = -1;
-	while (++i < 10)
-	{
-		char *test = get_next_line(fd);
-		printf("get_next_line is:%s", test);
-		fflush(stdout);
-		free(test);
-	}
-	close(fd);
-}
+// 	int i = -1;
+// 	while (++i < 10)
+// 	{
+// 		char *test = get_next_line(fd);
+// 		printf("get_next_line is:%s", test);
+// 		fflush(stdout);
+// 		free(test);
+// 	}
+// 	close(fd);
+// }
