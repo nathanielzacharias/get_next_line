@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nzachari <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -9,7 +9,7 @@
 /*   Updated: 2023/10/24 10:07:22 by nzachari         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*read_into_buffer(char **buffer, ssize_t *nl_pos, \
 	ssize_t *read_bytes, int fd)
@@ -52,7 +52,7 @@ char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp, \
 	while ((*buffer)[len])
 		len++;
 	len -= (*nl_pos);
-	*temp = malloc(len + 1);
+	*temp = ft_calloc(len + 1, sizeof(char));
 	if (!*temp)
 		return (NULL);
 	i = -1;
@@ -75,7 +75,7 @@ char	*processed_line(ssize_t *nl_pos, char **buffer, char **temp)
 
 	if (*nl_pos == -1)
 	{
-		*temp = malloc(ft_strlen(*buffer) + 1);
+		*temp = ft_calloc(ft_strlen(*buffer) + 1, sizeof(char));
 		if (!(*temp))
 			return (NULL);
 		i = -1;
@@ -86,7 +86,7 @@ char	*processed_line(ssize_t *nl_pos, char **buffer, char **temp)
 		*buffer = NULL;
 		return (*temp);
 	}
-	terminated_str = malloc((*nl_pos + 1) + 1);
+	terminated_str = ft_calloc((*nl_pos + 1) + 1, sizeof(char));
 	if (!terminated_str)
 		return (NULL);
 	terminated_str[(*nl_pos + 1)] = 0;
@@ -98,7 +98,7 @@ char	*processed_line(ssize_t *nl_pos, char **buffer, char **temp)
 
 char	*get_next_line(int fd)
 {
-	static char	*buffer;
+	static char	*buffer[1024];
 	char		*temp;
 	ssize_t		nl_pos;
 	ssize_t		read_bytes;
@@ -109,22 +109,22 @@ char	*get_next_line(int fd)
 	read_bytes = -1;
 	while (1)
 	{
-		buffer = read_into_buffer(&buffer, &nl_pos, &read_bytes, fd);
-		if (!buffer || (read_bytes > 0 && (!buffer || *buffer == '\0')))
-			return (freed_and_nullified(&buffer));
+		buffer[fd] = read_into_buffer(&(buffer[fd]), &nl_pos, &read_bytes, fd);
+		if ((read_bytes && (!(buffer[fd]) || !(*(buffer[fd])))))
+			return (freed_and_nullified(&(buffer[fd])));
 		if (nl_pos >= 0 || read_bytes <= 0)
 			break ;
 	}
 	if (read_bytes <= 0)
 	{
-		if (!(buffer) || (read_bytes == -1 && nl_pos == -1))
-			return (freed_and_nullified(&buffer));
+		if (!(buffer[fd]) || (read_bytes == -1 && nl_pos == -1))
+			return (freed_and_nullified(&(buffer[fd])));
 		else
-			return (processed_line(&nl_pos, &buffer, &temp));
+			return (processed_line(&nl_pos, &(buffer[fd]), &temp));
 	}
-	return (processed_line(&nl_pos, &buffer, &temp));
+	return (processed_line(&nl_pos, &(buffer[fd]), &temp));
 }
-/*
+
 // #include <fcntl.h>
 // int	main(void)
 // {
@@ -132,9 +132,8 @@ char	*get_next_line(int fd)
 // 	// fflush(stdout);
 // 	int	fd;
 // 	// fd = open("nat.txt", O_RDONLY);
-// 	fd = open("1char.txt", O_RDONLY);
+// 	fd = open(".tests/nl", O_RDONLY);
 // 	// fd = open("empty_file.txt", O_RDONLY);
-
 // 	int i = -1;
 // 	while (++i < 9)
 // 	{
@@ -145,4 +144,3 @@ char	*get_next_line(int fd)
 // 	}
 // 	close(fd);
 // }
-*/
