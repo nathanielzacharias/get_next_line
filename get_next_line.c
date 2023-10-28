@@ -94,25 +94,11 @@ char	*read_into_buffer(char **buffer, ssize_t *nl_pos, ssize_t *read_bytes, int 
 	return (NULL);
 }
 
-char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp)
+char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp, char *terminated_str)
 {
-	char *terminated_str;
 	ssize_t	len;
 	ssize_t	i;
 	ssize_t	j;
-
-	terminated_str = malloc((*nl_pos + 1) + 1);
-	if (!terminated_str)
-		return (NULL);
-	terminated_str[(*nl_pos + 1)] = 0;
-
-	//copy from buffer to terminated_str
-	i = 0;
-	while (i < (*nl_pos + 1)) //nl_pos == 0
-	{
-		terminated_str[i] = (*buffer)[i];
-		i++;
-	}
 
 	//find buffer len from nl_pos to end
 	len = (*nl_pos + 1);
@@ -125,12 +111,11 @@ char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp)
 	if (!*temp)
 		return (NULL);
 
-	i = 0;
+	i = -1;
 	j = (*nl_pos + 1);
-	while (i < len)
+	while (++i < len)
 	{
 		(*temp)[i] = (*buffer)[j];
-		i++;
 		j++;
 	}
 	(*temp)[len] = 0;
@@ -145,6 +130,7 @@ char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp)
 char *processed_line(ssize_t *nl_pos, char **buffer, char **temp)
 {
 	ssize_t i;
+	char *terminated_str;
 
 	if (*nl_pos == -1) //nl not found && buffer not empty so return buffer
 	{
@@ -159,8 +145,15 @@ char *processed_line(ssize_t *nl_pos, char **buffer, char **temp)
 		*buffer = NULL;
 		return (*temp);
 	}
-	else
-		return (term_and_store(nl_pos, buffer, temp));
+	// return (term_and_store(nl_pos, buffer, temp));
+	terminated_str = malloc((*nl_pos + 1) + 1);
+	if (!terminated_str)
+		return (NULL);
+	terminated_str[(*nl_pos + 1)] = 0;
+	i = -1;
+	while (++i < (*nl_pos + 1)) //nl_pos == 0
+		terminated_str[i] = (*buffer)[i];
+	return (term_and_store(nl_pos, buffer, temp, terminated_str));
 }
 
 char	*get_next_line(int fd)
