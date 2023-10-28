@@ -144,14 +144,13 @@ char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp)
 
 char *processed_line(ssize_t *nl_pos, char **buffer, char **temp)
 {
+	int i;
+
 	if (*nl_pos == -1) //nl not found && buffer not empty so return buffer
 	{
-		//malloced and copied temp
 		*temp = malloc(ft_strlen(*buffer) + 1);
 		if (!(*temp))
 			return (NULL);
-
-		int i;
 		i = 0;
 		while((*buffer)[i])
 		{
@@ -159,9 +158,6 @@ char *processed_line(ssize_t *nl_pos, char **buffer, char **temp)
 			i++;
 		}
 		(*temp)[i] = 0;
-
-
-		// *temp = *buffer;
 		free(*buffer);
 		*buffer = NULL;
 		return (*temp);
