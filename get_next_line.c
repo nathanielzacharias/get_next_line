@@ -14,84 +14,31 @@
 
 char	*read_into_buffer(char **buffer, ssize_t *nl_pos, ssize_t *read_bytes, int fd)
 {
+	int len;
+	char *temp;
+	ssize_t i;
 
-	if (!(*buffer)) //if buffer doesnt exist, malloc buffer_size
+	if (!(*buffer))
 	{
-		*buffer = malloc(BUFFER_SIZE + 1);
-		if(!(*buffer))
-			return(NULL);
-		(*buffer)[BUFFER_SIZE] = 0;
-
-		int i;
-		i = 0;
-		while (i < BUFFER_SIZE)
-		{
-			(*buffer)[i] = 0;
-			i++;
-		}
-
-
+		*buffer = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
 		*read_bytes = read(fd, *buffer, BUFFER_SIZE);
 		if (*read_bytes < 1)
 			return (freed_and_nullified(buffer));
 	}
-
-	if (*buffer) //if buffer exists, find newline, if newline exists return buffer
-		*nl_pos = find_newline_in(*buffer);
-	
+	*nl_pos = find_newline_in(*buffer);
 	if (*nl_pos >= 0)
 		return (*buffer);
-
-	else if (*nl_pos < 0)
-	{
-		// printf("in read into buf\n");
-		// fflush(stdout);
-
-		//else add to buffer
-
-		//find len
-		int len;
-		len = ft_strlen(*buffer);
-
-		//temp = malloc len + BUFSIZE
-		char *temp;
-		temp = malloc (len + BUFFER_SIZE + 1);
-		if (!temp)
-			return (NULL);
-		temp[len + BUFFER_SIZE] = '\0';
-
-		int i;
-		i = 0;
-		while (i < len + BUFFER_SIZE)
-		{
-			temp[i] = 0;
-			i++;
-		}
-
-		//copy to temp from buf
-		// int i;
-		i = 0;
-		while (i < len)
-		{
-			temp[i] = (*buffer)[i];
-			i++;
-		}
-
-		//read from fd to end of temp
-		*read_bytes = read(fd, &temp[i], BUFFER_SIZE);
-
-		//free buff, assign temp to buf
-		free(*buffer);
-		*buffer = temp;
-		// free(temp);
-
-		if (!len && !(*read_bytes))
-			return (freed_and_nullified(buffer));
-		//return buffer
-		return (*buffer);
-	}
-
-	return (NULL);
+	len = ft_strlen(*buffer);
+	temp = ft_calloc(len + BUFFER_SIZE + 1, sizeof(char));
+	i = -1;
+	while (temp && (++i < len))
+		temp[i] = (*buffer)[i];
+	*read_bytes = read(fd, &temp[i], BUFFER_SIZE);
+	free(*buffer);
+	*buffer = temp;
+	if (!len && !(*read_bytes))
+		return (freed_and_nullified(buffer));
+	return (*buffer);
 }
 
 char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp, char *terminated_str)
