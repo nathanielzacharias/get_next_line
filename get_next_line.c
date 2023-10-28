@@ -12,36 +12,6 @@
 #include <stdio.h>
 #include "get_next_line.h"
 
-char *freed_and_nullified(char **ptr)
-{
-	free(*ptr);
-	*ptr = NULL;
-	return (*ptr);
-}
-
-ssize_t	find_newline_in(char *str)
-{
-	ssize_t i;
-	i = 0;
-
-	while (str[i] && str[i] != '\n')
-		i++;
-	if (!str[i])
-		return (-1);
-	else 
-		return (i);
-}
-
-// size_t	ft_strlen(char const *str)
-// {
-// 	size_t	len;
-
-// 	len = 0;
-// 	while (*str++)
-// 		++len;
-// 	return (len);
-// }
-
 char	*read_into_buffer(char **buffer, ssize_t *nl_pos, ssize_t *read_bytes, int fd)
 {
 
@@ -124,7 +94,7 @@ char	*read_into_buffer(char **buffer, ssize_t *nl_pos, ssize_t *read_bytes, int 
 	return (NULL);
 }
 
-char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp, ssize_t read_bytes)
+char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp)
 {
 	char *terminated_str;
 	ssize_t	len;
@@ -147,31 +117,16 @@ char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp, ssize_t read_b
 	//find buffer len from nl_pos to end
 	len = (*nl_pos + 1);
 	while((*buffer)[len])
-		len++;			  //len == 1	
-	// printf("len before -= is:%zi\n", len);
-	// fflush(stdout);
-	len -= (*nl_pos  ); //len == 0
-	// printf("len after -= is:%zi\n", len );
-	// fflush(stdout);
+		len++;	
+	len -= (*nl_pos  );
 
 	//malloc temp
 	*temp = malloc(len + 1);
 	if (!*temp)
 		return (NULL);
 
-	//copy from buf to temp
-	int offset;
-	(void) read_bytes;
-	// if (read_bytes <= 0)
-	// {
-	// 	offset = *nl_pos;
-	// }
-	// else
-	// 	offset = *nl_pos + 1;
-	offset = *nl_pos + 1;
-
 	i = 0;
-	j = (offset); //may be just *nl_pos
+	j = (*nl_pos + 1);
 	while (i < len)
 	{
 		(*temp)[i] = (*buffer)[j];
@@ -179,7 +134,6 @@ char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp, ssize_t read_b
 		j++;
 	}
 	(*temp)[len] = 0;
-	// printf("temp is:%s\n", *temp);
 
 	//free buffer and reassign
 	free(*buffer);
@@ -188,7 +142,7 @@ char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp, ssize_t read_b
 	return(terminated_str);
 }
 
-char *processed_line(ssize_t *nl_pos, char **buffer, char **temp, ssize_t read_bytes)
+char *processed_line(ssize_t *nl_pos, char **buffer, char **temp)
 {
 	if (*nl_pos == -1) //nl not found && buffer not empty so return buffer
 	{
@@ -213,7 +167,7 @@ char *processed_line(ssize_t *nl_pos, char **buffer, char **temp, ssize_t read_b
 		return (*temp);
 	}
 	else
-		return (term_and_store(nl_pos, buffer, temp, read_bytes));
+		return (term_and_store(nl_pos, buffer, temp));
 }
 
 char	*get_next_line(int fd)
@@ -240,11 +194,11 @@ char	*get_next_line(int fd)
 		if(!(buffer) || (read_bytes == -1 && nl_pos == -1))	//reading past last line in fd
 			return (freed_and_nullified(&buffer));
 		else
-			return (processed_line(&nl_pos, &buffer, &temp, read_bytes));
+			return (processed_line(&nl_pos, &buffer, &temp));
 	}
 
 	// if (read_bytes > 0)
-	return (processed_line(&nl_pos, &buffer, &temp, read_bytes));
+	return (processed_line(&nl_pos, &buffer, &temp));
 }
 
 // #include <fcntl.h>

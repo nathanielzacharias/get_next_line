@@ -25,7 +25,11 @@
 
 char	*get_next_line(int fd);
 size_t	ft_strlen(char const *str);
-char	*ft_strjoin(char const *s1, char const *s2);
-void	ft_bzerolen(char *str, int buf_len);
+char 	*freed_and_nullified(char **ptr);
+ssize_t	find_newline_in(char *str);
+void	ft_bzero(void *s, size_t n);
+void	*ft_calloc(size_t nmemb, size_t size);
+
+
 
 #endif //GET_NEXT_LINE_H
