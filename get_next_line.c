@@ -12,11 +12,12 @@
 #include <stdio.h>
 #include "get_next_line.h"
 
-char	*read_into_buffer(char **buffer, ssize_t *nl_pos, ssize_t *read_bytes, int fd)
+char	*read_into_buffer(char **buffer, ssize_t *nl_pos, \
+	ssize_t *read_bytes, int fd)
 {
-	int len;
-	char *temp;
-	ssize_t i;
+	int		len;
+	char	*temp;
+	ssize_t	i;
 
 	if (!(*buffer))
 	{
@@ -41,23 +42,20 @@ char	*read_into_buffer(char **buffer, ssize_t *nl_pos, ssize_t *read_bytes, int 
 	return (*buffer);
 }
 
-char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp, char *terminated_str)
+char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp, \
+	char *terminated_str)
 {
 	ssize_t	len;
 	ssize_t	i;
 	ssize_t	j;
 
-	//find buffer len from nl_pos to end
 	len = (*nl_pos + 1);
-	while((*buffer)[len])
-		len++;	
-	len -= (*nl_pos  );
-
-	//malloc temp
+	while ((*buffer)[len])
+		len++;
+	len -= (*nl_pos);
 	*temp = malloc(len + 1);
 	if (!*temp)
 		return (NULL);
-
 	i = -1;
 	j = (*nl_pos + 1);
 	while (++i < len)
@@ -66,39 +64,35 @@ char	*term_and_store(ssize_t *nl_pos, char **buffer, char **temp, char *terminat
 		j++;
 	}
 	(*temp)[len] = 0;
-
-	//free buffer and reassign
 	free(*buffer);
 	*buffer = *temp;
-
-	return(terminated_str);
+	return (terminated_str);
 }
 
-char *processed_line(ssize_t *nl_pos, char **buffer, char **temp)
+char	*processed_line(ssize_t *nl_pos, char **buffer, char **temp)
 {
-	ssize_t i;
-	char *terminated_str;
+	ssize_t	i;
+	char	*terminated_str;
 
-	if (*nl_pos == -1) //nl not found && buffer not empty so return buffer
+	if (*nl_pos == -1)
 	{
 		*temp = malloc(ft_strlen(*buffer) + 1);
 		if (!(*temp))
 			return (NULL);
 		i = -1;
-		while((*buffer)[++i])
+		while ((*buffer)[++i])
 			(*temp)[i] = (*buffer)[i];
 		(*temp)[i] = 0;
 		free(*buffer);
 		*buffer = NULL;
 		return (*temp);
 	}
-	// return (term_and_store(nl_pos, buffer, temp));
 	terminated_str = malloc((*nl_pos + 1) + 1);
 	if (!terminated_str)
 		return (NULL);
 	terminated_str[(*nl_pos + 1)] = 0;
 	i = -1;
-	while (++i < (*nl_pos + 1)) //nl_pos == 0
+	while (++i < (*nl_pos + 1))
 		terminated_str[i] = (*buffer)[i];
 	return (term_and_store(nl_pos, buffer, temp, terminated_str));
 }
@@ -117,23 +111,21 @@ char	*get_next_line(int fd)
 	while (1)
 	{
 		buffer = read_into_buffer(&buffer, &nl_pos, &read_bytes, fd);
-		if ( !buffer || (read_bytes > 0 && (!buffer || *buffer == '\0')))
+		if (!buffer || (read_bytes > 0 && (!buffer || *buffer == '\0')))
 			return (freed_and_nullified(&buffer));
 		if (nl_pos >= 0 || read_bytes <= 0)
 			break ;
 	}
-	if (read_bytes <= 0) //eof reached or error fd
+	if (read_bytes <= 0)
 	{
-		if(!(buffer) || (read_bytes == -1 && nl_pos == -1))	//reading past last line in fd
+		if (!(buffer) || (read_bytes == -1 && nl_pos == -1))
 			return (freed_and_nullified(&buffer));
 		else
 			return (processed_line(&nl_pos, &buffer, &temp));
 	}
-
-	// if (read_bytes > 0)
 	return (processed_line(&nl_pos, &buffer, &temp));
 }
-
+/*
 // #include <fcntl.h>
 // int	main(void)
 // {
@@ -154,3 +146,4 @@ char	*get_next_line(int fd)
 // 	}
 // 	close(fd);
 // }
+*/
