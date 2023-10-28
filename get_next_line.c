@@ -225,23 +225,16 @@ char	*get_next_line(int fd)
 
 	if (fd < 0 || fd > 1023 || BUFFER_SIZE < 1)
 		return (NULL);
-
 	nl_pos = -1;
 	read_bytes = -1;
-	int whilecounter = 0;
-
 	while (1)
 	{
-		// printf("here in while 1\n");
-		// fflush(stdout);
-		whilecounter++;
 		buffer = read_into_buffer(&buffer, &nl_pos, &read_bytes, fd);
 		if ( !buffer || (read_bytes > 0 && (!buffer || *buffer == '\0')))
 			return (freed_and_nullified(&buffer));
 		if (nl_pos >= 0 || read_bytes <= 0)
 			break ;
 	}
-
 	if (read_bytes <= 0) //eof reached or error fd
 	{
 		if(!(buffer) || (read_bytes == -1 && nl_pos == -1))	//reading past last line in fd
